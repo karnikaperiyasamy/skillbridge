@@ -64,8 +64,8 @@ offer to start a mock interview. Never fabricate specific company data you weren
   return { sessionId: session.id, reply: assistantReply };
 }
 
-/** Mock Interview Assistant: generates role-specific questions and evaluates answers. */
 export async function generateMockInterviewQuestions(targetRole: string, count = 5) {
+  const roleName = (targetRole && targetRole.trim()) ? targetRole.trim() : "Software Engineer";
   const completion = await groq.chat.completions.create({
     model: GROQ_MODEL,
     temperature: 0.6,
@@ -73,10 +73,10 @@ export async function generateMockInterviewQuestions(targetRole: string, count =
     messages: [
       {
         role: "system",
-        content: `Generate ${count} mock interview questions (mix of technical + behavioral) for the role: ${targetRole}.
+        content: `Generate ${count} mock interview questions (mix of technical + behavioral) for the role: ${roleName}.
 Return STRICT JSON: { "questions": [{ "question": string, "type": "technical"|"behavioral", "idealAnswerPoints": string[] }] }`,
       },
-      { role: "user", content: targetRole },
+      { role: "user", content: `Please provide mock interview questions for ${roleName}` },
     ],
   });
   return JSON.parse(completion.choices[0]?.message?.content ?? "{}");
