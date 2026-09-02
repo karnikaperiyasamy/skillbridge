@@ -1,9 +1,11 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? "/api";
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:5000/api",
-  withCredentials: true, // sends refreshToken httpOnly cookie
+  baseURL: apiBaseUrl,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
