@@ -11,8 +11,14 @@ interface ResumeAnalysisResult {
   extractedSkills: string[];
 }
 
-/** Downloads the resume from Cloudinary and extracts raw text. */
+/** Downloads the resume or decodes data URI and extracts raw text. */
 async function extractResumeText(resumeUrl: string): Promise<string> {
+  if (resumeUrl.startsWith("data:")) {
+    const base64Data = resumeUrl.split(",")[1];
+    const buffer = Buffer.from(base64Data, "base64");
+    const parsed = await pdfParse(buffer);
+    return parsed.text;
+  }
   const { data } = await axios.get(resumeUrl, { responseType: "arraybuffer" });
   const parsed = await pdfParse(data);
   return parsed.text;

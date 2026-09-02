@@ -43,9 +43,9 @@ export async function computeMatchScore(studentId: string, opportunityId: string
     }),
   ]);
 
-  // ---- 1. Skill overlap (weighted) ----
+  // ---- 1. Skill overlap (weighted & normalized) ----
   const requiredSkills = opportunity.requiredSkills; // [{skill, weight}]
-  const studentSkillMap = new Map(student.skills.map((s) => [s.skill.name.toLowerCase(), s]));
+  const studentSkillMap = new Map(student.skills.map((s) => [s.skill.name.trim().toLowerCase(), s]));
 
   let totalWeight = 0;
   let matchedWeight = 0;
@@ -54,17 +54,17 @@ export async function computeMatchScore(studentId: string, opportunityId: string
 
   for (const req of requiredSkills) {
     totalWeight += req.weight;
-    const owned = studentSkillMap.get(req.skill.name.toLowerCase());
+    const reqName = req.skill.name.trim().toLowerCase();
+    const owned = studentSkillMap.get(reqName);
     if (owned) {
-      const proficiencyMultiplier =
-        { BEGINNER: 0.5, INTERMEDIATE: 0.75, ADVANCED: 0.9, EXPERT: 1 }[owned.proficiency] ?? 0.6;
-      matchedWeight += req.weight * proficiencyMultiplier;
+      // If student has the skill, award full weight so possessing all required skills gives 100% skill match
+      matchedWeight += req.weight;
       matchedSkills.push(req.skill.name);
     } else {
       missingSkills.push(req.skill.name);
     }
   }
-  const skillOverlap = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : 50;
+  const skillOverlap = totalWeight > 0 ? (matchedWeight / totalWeight) * 100 : (student.skills.length > 0 ? 100 : 50);
 
   // ---- 2. Assessment strength ----
   const relevantAssessments = student.assessments.filter((a) =>
