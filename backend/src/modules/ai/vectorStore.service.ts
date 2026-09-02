@@ -47,13 +47,16 @@ export async function indexOpportunity(opportunity: Opportunity & { description:
 }
 
 export async function searchSimilarOpportunities(query: string, k = 5) {
+  if (!process.env.HF_API_KEY) {
+    return prisma.opportunity.findMany({ where: { isActive: true }, orderBy: { createdAt: "desc" }, take: k });
+  }
   try {
-    const results = await vectorStore.similaritySearch(query, k);
+    const searchPromise = vectorStore.similaritySearch(query, k);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2500));
+    const results = (await Promise.race([searchPromise, timeoutPromise])) as any[];
     const ids = results.map((r) => r.metadata.id as string);
     return await prisma.opportunity.findMany({ where: { id: { in: ids }, isActive: true } });
   } catch {
-    // pgvector extension / embedding column not provisioned yet, or embedding API unreachable —
-    // degrade gracefully so chat/recommendations keep working without semantic search.
     return prisma.opportunity.findMany({ where: { isActive: true }, orderBy: { createdAt: "desc" }, take: k });
   }
 }
