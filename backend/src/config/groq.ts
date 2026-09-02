@@ -2,7 +2,7 @@ import Groq from "groq-sdk";
 
 export const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export const GROQ_MODEL = "llama-3.3-70b-versatile";
+export const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 /** Thin helper that always asks for structured JSON back from the model. */
 export async function groqJSON<T = any>(systemPrompt: string, userPrompt: string): Promise<T> {
