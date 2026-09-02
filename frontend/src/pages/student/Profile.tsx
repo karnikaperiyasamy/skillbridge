@@ -85,9 +85,13 @@ export default function StudentProfile() {
     if (!skillName.trim()) return;
     try {
       const { data } = await api.post("/students/me/skills", { name: skillName.trim(), proficiency });
+      const newSkill = data.data?.skill
+        ? data.data
+        : { ...data.data, skill: { id: data.data.skillId, name: skillName.trim() } };
+
       setProfile((p: any) => ({
         ...p,
-        skills: [...(p.skills ?? []).filter((s: StudentSkill) => s.skill.name !== skillName.trim()), data.data],
+        skills: [...(p.skills ?? []).filter((s: StudentSkill) => s.skill?.name?.toLowerCase() !== skillName.trim().toLowerCase()), newSkill],
       }));
       setSkillName("");
       push("Skill added", "success");
@@ -99,7 +103,8 @@ export default function StudentProfile() {
   async function removeSkill(skillId: string) {
     try {
       await api.delete(`/students/me/skills/${skillId}`);
-      setProfile((p: any) => ({ ...p, skills: p.skills.filter((s: StudentSkill) => s.skill.id !== skillId) }));
+      setProfile((p: any) => ({ ...p, skills: (p.skills ?? []).filter((s: StudentSkill) => (s.skill?.id !== skillId && s.id !== skillId)) }));
+      push("Skill removed", "success");
     } catch (err) {
       push(extractErrorMessage(err), "error");
     }
@@ -210,15 +215,19 @@ export default function StudentProfile() {
         </form>
         <div className="mt-4 flex flex-wrap gap-2">
           {(profile.skills ?? []).length === 0 && <p className="text-sm text-ink-faint">No skills added yet.</p>}
-          {(profile.skills ?? []).map((s: StudentSkill) => (
-            <span key={s.id} className="flex items-center gap-2 rounded-full bg-surface-3 px-3 py-1.5 text-sm text-ink">
-              {s.skill.name}
-              <Badge tone="brand">{s.proficiency}</Badge>
-              <button onClick={() => removeSkill(s.skill.id)} className="text-ink-faint hover:text-danger" aria-label={`Remove ${s.skill.name}`}>
-                ×
-              </button>
-            </span>
-          ))}
+          {(profile.skills ?? []).map((s: any, idx: number) => {
+            const name = s.skill?.name || s.name || "Skill";
+            const skillId = s.skill?.id || s.skillId || s.id;
+            return (
+              <span key={s.id || idx} className="flex items-center gap-2 rounded-full bg-surface-3 px-3 py-1.5 text-sm text-ink">
+                {name}
+                <Badge tone="brand">{s.proficiency || "BEGINNER"}</Badge>
+                <button type="button" onClick={() => removeSkill(skillId)} className="text-ink-faint hover:text-danger" aria-label={`Remove ${name}`}>
+                  ×
+                </button>
+              </span>
+            );
+          })}
         </div>
       </Card>
     </DashboardLayout>

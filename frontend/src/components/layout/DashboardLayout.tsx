@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { api } from "../../lib/api";
+import { ThemeToggle } from "../ui";
 
 interface NavItem {
   to: string;
@@ -109,8 +110,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto shrink-0 border-t border-stroke p-4">
-        <div className="mb-3 flex items-center gap-3 rounded-xl bg-surface-2 px-3 py-2.5">
+      <div className="mt-auto shrink-0 border-t border-stroke p-4 space-y-3">
+        <ThemeToggle className="w-full justify-center" />
+        <div className="flex items-center gap-3 rounded-xl bg-surface-2 px-3 py-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-sm font-bold text-white shadow-glow">
             {user?.email?.[0]?.toUpperCase() ?? "?"}
           </div>
@@ -140,13 +142,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </span>
           SkillBridge <span className="text-gradient">AI</span>
         </span>
-        <button
-          onClick={() => setMobileOpen((o) => !o)}
-          className="rounded-lg p-2 text-ink-muted hover:bg-accent-50 hover:text-accent-700"
-          aria-label="Toggle navigation"
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileOpen((o) => !o)}
+            className="rounded-lg p-2 text-ink-muted hover:bg-accent-50 hover:text-accent-700"
+            aria-label="Toggle navigation"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Desktop sidebar */}

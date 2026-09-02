@@ -1,6 +1,6 @@
-import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, Moon, Sun } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Card                                                               */
@@ -289,5 +289,46 @@ export function ProgressBar({ value, className = "" }: { value: number; classNam
         style={{ width: `${pct}%` }}
       />
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Theme Toggle (Light / Dark Mode)                                  */
+/* ------------------------------------------------------------------ */
+
+export function ThemeToggle({ className = "" }: { className?: string }) {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    return (localStorage.getItem("skillbridge-theme") as "light" | "dark") || "light";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("skillbridge-theme", theme);
+  }, [theme]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+      className={`flex items-center gap-2 rounded-xl border border-stroke bg-white/60 px-3 py-2 text-xs font-semibold text-ink shadow-soft transition-all hover:border-accent-300 hover:bg-accent-50/70 ${className}`}
+      title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+    >
+      {theme === "dark" ? (
+        <>
+          <Sun size={15} className="text-amber-400" />
+          <span>Light Mode</span>
+        </>
+      ) : (
+        <>
+          <Moon size={15} className="text-accent-600" />
+          <span>Dark Mode</span>
+        </>
+      )}
+    </button>
   );
 }

@@ -83,11 +83,12 @@ export async function addSkill(req: AuthedRequest, res: Response, next: NextFunc
   try {
     const student = await getStudent(req.user!.userId);
     const { name, proficiency } = req.body;
-    const skill = await prisma.skill.upsert({ where: { name }, update: {}, create: { name } });
+    const skill = await prisma.skill.upsert({ where: { name: name.trim() }, update: {}, create: { name: name.trim() } });
     const studentSkill = await prisma.studentSkill.upsert({
       where: { studentId_skillId: { studentId: student.id, skillId: skill.id } },
       update: { proficiency },
       create: { studentId: student.id, skillId: skill.id, proficiency },
+      include: { skill: true },
     });
     res.status(201).json({ success: true, data: studentSkill });
   } catch (err) { next(err); }
