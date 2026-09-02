@@ -15,10 +15,20 @@ import aiRoutes from "./modules/ai/ai.routes";
 
 const app = express();
 
+const allowedOrigins = (process.env.CORS_ORIGIN ?? "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.set("trust proxy", 1);
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN?.split(",") ?? "*", credentials: true }));
+app.use(
+  cors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
