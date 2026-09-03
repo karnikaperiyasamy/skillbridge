@@ -124,38 +124,56 @@ export async function departmentPerformance(req: AuthedRequest, res: Response, n
   } catch (err) { next(err); }
 }
 
+function parseDate(val: any): Date | undefined | null {
+  if (!val) return undefined;
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    if (!trimmed) return undefined;
+    // If format is YYYY-MM-DD, parse explicitly as ISO or add time
+    const d = new Date(trimmed.includes("T") ? trimmed : `${trimmed}T00:00:00.000Z`);
+    return isNaN(d.getTime()) ? undefined : d;
+  }
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? undefined : d;
+}
+
 export async function listPartnerships(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const college = await getCollege(req.user!.userId);
-    res.json({ success: true, data: await prisma.industryPartnership.findMany({ where: { collegeId: college.id }, include: { company: true } }) });
+    res.json({ success: true, data: await prisma.industryPartnership.findMany({ where: { collegeId: college.id }, include: { company: true }, orderBy: { createdAt: "desc" } }) });
   } catch (err) { next(err); }
 }
+
 export async function createPartnership(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const college = await getCollege(req.user!.userId);
     const { startDate, endDate, ...rest } = req.body;
-    res.status(201).json({
-      success: true,
-      data: await prisma.industryPartnership.create({
-        data: {
-          ...rest,
-          ...(startDate ? { startDate: new Date(startDate) } : {}),
-          ...(endDate ? { endDate: new Date(endDate) } : {}),
-          collegeId: college.id,
-        },
-      }),
+    const parsedStart = parseDate(startDate);
+    const parsedEnd = parseDate(endDate);
+
+    const created = await prisma.industryPartnership.create({
+      data: {
+        ...rest,
+        ...(parsedStart ? { startDate: parsedStart } : {}),
+        ...(parsedEnd ? { endDate: parsedEnd } : {}),
+        collegeId: college.id,
+      },
+      include: { company: true },
     });
+    res.status(201).json({ success: true, data: created });
   } catch (err) { next(err); }
 }
+
 export async function updatePartnership(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const { startDate, endDate, ...rest } = req.body;
     const updateData: any = { ...rest };
-    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
-    if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null;
-    res.json({ success: true, data: await prisma.industryPartnership.update({ where: { id: req.params.id }, data: updateData }) });
+    if (startDate !== undefined) updateData.startDate = parseDate(startDate) ?? null;
+    if (endDate !== undefined) updateData.endDate = parseDate(endDate) ?? null;
+    res.json({ success: true, data: await prisma.industryPartnership.update({ where: { id: req.params.id }, data: updateData, include: { company: true } }) });
   } catch (err) { next(err); }
 }
+
 export async function deletePartnership(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     await prisma.industryPartnership.delete({ where: { id: req.params.id } });

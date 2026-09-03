@@ -35,7 +35,7 @@ export async function listMyOpportunities(req: AuthedRequest, res: Response, nex
 export async function createOpportunity(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const company = await getCompany(req.user!.userId);
-    const { skillIds, skillNames, ...rest } = req.body; // skillIds: [{ skillId, weight }] OR skillNames: string[]
+    const { skillIds, skillNames, deadline, ...rest } = req.body; // skillIds: [{ skillId, weight }] OR skillNames: string[]
 
     let skillCreates: { skillId: string; weight: number }[] = (skillIds ?? []).map((s: any) => ({
       skillId: s.skillId,
@@ -51,9 +51,19 @@ export async function createOpportunity(req: AuthedRequest, res: Response, next:
       skillCreates = [...skillCreates, ...resolved.map((s) => ({ skillId: s.id, weight: 1 }))];
     }
 
+    let parsedDeadline: Date | undefined = undefined;
+    if (deadline) {
+      const trimmed = String(deadline).trim();
+      if (trimmed) {
+        const d = new Date(trimmed.includes("T") ? trimmed : `${trimmed}T00:00:00.000Z`);
+        if (!isNaN(d.getTime())) parsedDeadline = d;
+      }
+    }
+
     const opportunity = await prisma.opportunity.create({
       data: {
         ...rest,
+        ...(parsedDeadline ? { deadline: parsedDeadline } : {}),
         companyId: company.id,
         requiredSkills: { create: skillCreates },
       },
@@ -68,7 +78,18 @@ export async function createOpportunity(req: AuthedRequest, res: Response, next:
 
 export async function updateOpportunity(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
-    const data = await prisma.opportunity.update({ where: { id: req.params.id }, data: req.body });
+    const { deadline, ...rest } = req.body;
+    const updateData: any = { ...rest };
+    if (deadline !== undefined) {
+      if (!deadline) {
+        updateData.deadline = null;
+      } else {
+        const trimmed = String(deadline).trim();
+        const d = new Date(trimmed.includes("T") ? trimmed : `${trimmed}T00:00:00.000Z`);
+        updateData.deadline = isNaN(d.getTime()) ? null : d;
+      }
+    }
+    const data = await prisma.opportunity.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (err) { next(err); }
 }
