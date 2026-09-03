@@ -133,12 +133,27 @@ export async function listPartnerships(req: AuthedRequest, res: Response, next: 
 export async function createPartnership(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const college = await getCollege(req.user!.userId);
-    res.status(201).json({ success: true, data: await prisma.industryPartnership.create({ data: { ...req.body, collegeId: college.id } }) });
+    const { startDate, endDate, ...rest } = req.body;
+    res.status(201).json({
+      success: true,
+      data: await prisma.industryPartnership.create({
+        data: {
+          ...rest,
+          ...(startDate ? { startDate: new Date(startDate) } : {}),
+          ...(endDate ? { endDate: new Date(endDate) } : {}),
+          collegeId: college.id,
+        },
+      }),
+    });
   } catch (err) { next(err); }
 }
 export async function updatePartnership(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
-    res.json({ success: true, data: await prisma.industryPartnership.update({ where: { id: req.params.id }, data: req.body }) });
+    const { startDate, endDate, ...rest } = req.body;
+    const updateData: any = { ...rest };
+    if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
+    if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null;
+    res.json({ success: true, data: await prisma.industryPartnership.update({ where: { id: req.params.id }, data: updateData }) });
   } catch (err) { next(err); }
 }
 export async function deletePartnership(req: AuthedRequest, res: Response, next: NextFunction) {
