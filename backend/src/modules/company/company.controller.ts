@@ -76,10 +76,9 @@ export async function createOpportunity(req: AuthedRequest, res: Response, next:
     (async () => {
       try {
         const { sendEmail } = await import("../../utils/mailer");
-        const students = await prisma.student.findMany({
-          where: { user: { isActive: true } },
-          include: { user: true, skills: { include: { skill: true } } },
-          take: 100, // broadcast to active students
+        const studentUsers = await prisma.user.findMany({
+          where: { role: "STUDENT", isActive: true },
+          include: { student: true },
         });
 
         const appUrl = process.env.APP_URL || "https://skillbridge-ai-frontend-cd9l.onrender.com";
@@ -87,18 +86,19 @@ export async function createOpportunity(req: AuthedRequest, res: Response, next:
         const compName = company.name;
         const oppType = opportunity.type === "INTERNSHIP" ? "Internship" : "Job";
 
-        for (const s of students) {
-          if (!s.user?.email) continue;
+        console.log(`[JOB BROADCAST] Sending alert to ${studentUsers.length} students...`);
+        for (const u of studentUsers) {
+          if (!u.email) continue;
           await sendEmail({
-            to: s.user.email,
-            subject: `🚀 New ${oppType} Opportunity: ${oppTitle} at ${compName}`,
+            to: u.email,
+            subject: `🚀 New ${oppType} Alert: ${oppTitle} at ${compName}`,
             html: `
               <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
                 <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 16px; border-radius: 8px; text-align: center; color: white; margin-bottom: 20px;">
                   <h2 style="margin: 0; font-size: 20px;">SkillBridge AI — New Opportunity Alert</h2>
                 </div>
-                <p>Hello <strong>${s.fullName || "Student"}</strong>,</p>
-                <p>A new <strong>${oppType}</strong> opening has just been posted by <strong>${compName}</strong> that may match your profile!</p>
+                <p>Hello <strong>${u.student?.fullName || "Student"}</strong>,</p>
+                <p>A new <strong>${oppType}</strong> opening has just been posted by <strong>${compName}</strong> on SkillBridge AI!</p>
                 <div style="background: #f8fafc; border-left: 4px solid #4f46e5; padding: 16px; margin: 16px 0; border-radius: 4px;">
                   <h3 style="margin: 0 0 8px 0; color: #1e293b;">${oppTitle}</h3>
                   <p style="margin: 4px 0; font-size: 14px; color: #64748b;"><strong>Company:</strong> ${compName}</p>
@@ -110,7 +110,7 @@ export async function createOpportunity(req: AuthedRequest, res: Response, next:
                   <a href="${appUrl}/student/opportunities" style="background: #4f46e5; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">View Opportunity & Apply</a>
                 </div>
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-                <p style="font-size: 12px; color: #94a3b8; text-align: center;">You received this email because you are a registered student on SkillBridge AI.</p>
+                <p style="font-size: 12px; color: #94a3b8; text-align: center;">You received this email because you are registered as a student on SkillBridge AI.</p>
               </div>
             `,
           });
@@ -160,12 +160,35 @@ export async function listApplicants(req: AuthedRequest, res: Response, next: Ne
 export async function updateApplicationStatus(req: AuthedRequest, res: Response, next: NextFunction) {
   try {
     const { status, note, message } = req.body;
+
+    let attachmentUrl: string | undefined = undefined;
+    if (req.file) {
+      const { uploadBuffer } = await import("../../config/cloudinary");
+      attachmentUrl = await uploadBuffer(req.file.buffer, "offer-letters", "raw");
+    }
+
+    const noteWithAttachment = [
+      note || message,
+      attachmentUrl ? `[ATTACHMENT:${req.file?.originalname || "Offer_Letter.pdf"}]:${attachmentUrl}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
     const application = await prisma.application.update({
       where: { id: req.params.id },
-      data: { status, statusHistory: { create: { status, note: note || message } } },
+      data: {
+        status,
+        statusHistory: {
+          create: {
+            status,
+            note: noteWithAttachment || undefined,
+          },
+        },
+      },
       include: {
         student: { include: { user: true } },
         opportunity: { include: { company: true } },
+        statusHistory: true,
       },
     });
 
@@ -176,10 +199,11 @@ export async function updateApplicationStatus(req: AuthedRequest, res: Response,
         type: "APPLICATION_UPDATE",
         title: "Application status updated",
         body: `Your application for ${application.opportunity.title} at ${application.opportunity.company.name} changed to ${status}`,
+        link: "/student/applications",
       },
     });
 
-    // Email notification to student with status update and optional offer letter attachment
+    // Email notification to student with status update and attached offer letter
     (async () => {
       try {
         const { sendEmail } = await import("../../utils/mailer");
@@ -201,9 +225,9 @@ export async function updateApplicationStatus(req: AuthedRequest, res: Response,
 
         let statusMessage = `Your application status for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been updated to <strong>${formattedStatus}</strong>.`;
         if (status === "HIRED") {
-          statusMessage = `🎉 <strong>Congratulations!</strong> You have been <strong>HIRED</strong> for the position of <strong>${jobTitle}</strong> at <strong>${companyName}</strong>! ${req.file ? "Please find your official Offer Letter attached to this email." : ""}`;
+          statusMessage = `🎉 <strong>Congratulations!</strong> You have been <strong>HIRED</strong> for the position of <strong>${jobTitle}</strong> at <strong>${companyName}</strong>! ${req.file ? "Please find your official Offer Letter attached to this email and available for download on your student dashboard." : ""}`;
         } else if (status === "OFFERED") {
-          statusMessage = `🎉 <strong>Congratulations!</strong> You have received a job offer for <strong>${jobTitle}</strong> at <strong>${companyName}</strong>! ${req.file ? "Please review the attached offer letter / details." : ""}`;
+          statusMessage = `🎉 <strong>Congratulations!</strong> You have received a job offer for <strong>${jobTitle}</strong> at <strong>${companyName}</strong>! ${req.file ? "Please review the attached offer letter and download it from your student dashboard." : ""}`;
         } else if (status === "SHORTLISTED") {
           statusMessage = `✨ Great news! Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been <strong>SHORTLISTED</strong> for further rounds.`;
         } else if (status === "INTERVIEW_SCHEDULED") {
@@ -214,7 +238,7 @@ export async function updateApplicationStatus(req: AuthedRequest, res: Response,
 
         await sendEmail({
           to: studentEmail,
-          subject: `${status === "HIRED" || status === "OFFERED" ? "🎉 Offer Update" : "Application Update"}: ${jobTitle} at ${companyName} (${formattedStatus})`,
+          subject: `${status === "HIRED" || status === "OFFERED" ? "🎉 Offer Letter & Update" : "Application Update"}: ${jobTitle} at ${companyName} (${formattedStatus})`,
           html: `
             <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
               <div style="background: linear-gradient(135deg, #4f46e5, #7c3aed); padding: 16px; border-radius: 8px; text-align: center; color: white; margin-bottom: 20px;">
@@ -230,11 +254,13 @@ export async function updateApplicationStatus(req: AuthedRequest, res: Response,
               ` : ""}
               ${req.file ? `
                 <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 12px 16px; margin: 16px 0; border-radius: 6px; color: #065f46;">
-                  📎 <strong>Attachment:</strong> ${req.file.originalname} (attached to this email)
+                  📎 <strong>Offer Letter / Document Attached:</strong> ${req.file.originalname}
+                  <br />
+                  <span style="font-size: 12px; color: #047857;">You can open the attachment directly from this email or download it anytime from your SkillBridge student portal.</span>
                 </div>
               ` : ""}
               <div style="text-align: center; margin-top: 24px;">
-                <a href="${process.env.APP_URL || "https://skillbridge-ai-frontend-cd9l.onrender.com"}/student/applications" style="background: #4f46e5; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">View Application Status</a>
+                <a href="${process.env.APP_URL || "https://skillbridge-ai-frontend-cd9l.onrender.com"}/student/applications" style="background: #4f46e5; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; display: inline-block;">View in Student Dashboard & Download</a>
               </div>
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
               <p style="font-size: 12px; color: #94a3b8; text-align: center;">Best regards,<br /><strong>${companyName}</strong> via SkillBridge AI</p>

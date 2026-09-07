@@ -226,7 +226,10 @@ export async function listMyApplications(req: AuthedRequest, res: Response, next
     const student = await getStudent(req.user!.userId);
     const applications = await prisma.application.findMany({
       where: { studentId: student.id },
-      include: { opportunity: { include: { company: true } } },
+      include: {
+        opportunity: { include: { company: true } },
+        statusHistory: { orderBy: { changedAt: "desc" } },
+      },
       orderBy: { appliedAt: "desc" },
     });
     res.json({ success: true, data: applications });
