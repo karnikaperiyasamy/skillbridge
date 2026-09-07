@@ -100,8 +100,8 @@ export function Select({ className = "", children, ...rest }: SelectHTMLAttribut
   );
 }
 
-export function Label({ children }: { children: ReactNode }) {
-  return <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-muted">{children}</label>;
+export function Label({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <label className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-muted ${className}`}>{children}</label>;
 }
 
 export function FormField({

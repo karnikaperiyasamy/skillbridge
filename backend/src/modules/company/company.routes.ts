@@ -2,6 +2,9 @@ import { Router } from "express";
 import { authenticate, authorize } from "../../middlewares/auth";
 import * as ctrl from "./company.controller";
 
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const router = Router();
 router.use(authenticate, authorize("COMPANY"));
 
@@ -16,7 +19,7 @@ router.delete("/opportunities/:id", ctrl.deleteOpportunity);
 
 // Applicant management + AI ranking
 router.get("/opportunities/:id/applicants", ctrl.listApplicants);
-router.patch("/applications/:id/status", ctrl.updateApplicationStatus);
+router.patch("/applications/:id/status", upload.single("attachment"), ctrl.updateApplicationStatus);
 
 // Industry expectations publishing
 router.get("/industry-expectations", ctrl.listExpectations);

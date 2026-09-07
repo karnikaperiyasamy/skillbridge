@@ -6,10 +6,26 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
-export async function sendEmail(opts: { to: string; subject: string; html: string }) {
+export interface EmailAttachment {
+  filename: string;
+  content?: Buffer | string;
+  path?: string;
+  contentType?: string;
+}
+
+export async function sendEmail(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: EmailAttachment[];
+}) {
   if (process.env.NODE_ENV === "test") return; // skip in tests
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM ?? "SkillBridge AI <no-reply@skillbridge.ai>",
-    ...opts,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM ?? "SkillBridge AI <no-reply@skillbridge.ai>",
+      ...opts,
+    });
+  } catch (err) {
+    console.warn("sendEmail notice:", (err as Error)?.message || err);
+  }
 }
