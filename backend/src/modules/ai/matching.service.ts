@@ -143,33 +143,24 @@ export async function generateRecommendationsForStudent(studentId: string, limit
 
   const top = scored.sort((a, b) => b.score - a.score).slice(0, limit);
 
-  // Persist + generate a short natural-language "why" via Llama for the top few
-  for (const item of top.slice(0, 5)) {
-    const reason = await explainMatch(item.matchedSkills, item.missingSkills, item.score, item.opportunity.title);
-    await prisma.recommendation.upsert({
-      where: { id: `${studentId}_${item.opportunity.id}` }, // not a real unique constraint; illustrative
-      update: { score: item.score, reason },
-      create: {
-        studentId,
-        opportunityId: item.opportunity.id,
-        type: item.opportunity.type,
-        title: item.opportunity.title,
-        score: item.score,
-        reason,
-      },
-    }).catch(() =>
-      prisma.recommendation.create({
-        data: {
-          studentId,
-          opportunityId: item.opportunity.id,
-          type: item.opportunity.type,
-          title: item.opportunity.title,
-          score: item.score,
-          reason,
-        },
-      })
-    );
-  }
+  // Generate short natural-language explanations concurrently for top 3 matches
+  await Promise.all(
+    top.slice(0, 3).map(async (item) => {
+      try {
+        const reason = await explainMatch(item.matchedSkills, item.missingSkills, item.score, item.opportunity.title);
+        await prisma.recommendation.create({
+          data: {
+            studentId,
+            opportunityId: item.opportunity.id,
+            type: item.opportunity.type,
+            title: item.opportunity.title,
+            score: item.score,
+            reason,
+          },
+        }).catch(() => {});
+      } catch {}
+    })
+  );
 
   return top;
 }
