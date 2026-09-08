@@ -1,16 +1,15 @@
 import nodemailer from "nodemailer";
 
 function getTransporter() {
-  const host = process.env.SMTP_HOST || "smtp.gmail.com";
-  const port = Number(process.env.SMTP_PORT ?? 587);
   const user = process.env.SMTP_USER || "karnikap376@gmail.com";
   const pass = process.env.SMTP_PASS || "emzswvazajwkeoqi";
 
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
+    service: "gmail",
     auth: { user, pass },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 }
 
