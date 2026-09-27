@@ -248,6 +248,7 @@ model Company {
   industryExpectations IndustryExpectation[]
   industrySkillDemands IndustrySkillDemand[]
   partnerships       IndustryPartnership[]
+  employerValidations EmployerValidation[]
 
   @@index([verificationStatus])
 }
@@ -364,6 +365,8 @@ model College {
 
   students           Student[]
   partnerships       IndustryPartnership[]
+  courses            Course[]
+  curricula          Curriculum[]
 
   @@index([verificationStatus])
 }
@@ -496,3 +499,212 @@ model Notification {
 
   @@index([userId, isRead])
 }
+
+// ============================================================
+// SIH26134: LABOUR MARKET INTELLIGENCE & CURRICULUM ALIGNMENT
+// ============================================================
+
+enum DataSourceType {
+  DEMO_DATA
+  LIVE_FEED
+  GOVT_PORTAL
+  SURVEY
+}
+
+enum AlignmentStatus {
+  HIGH_ALIGNMENT
+  MODERATE_ALIGNMENT
+  CRITICAL_GAP
+}
+
+enum CourseHealthStatus {
+  HEALTHY
+  NEEDS_UPDATE
+  LOW_DEMAND
+  POTENTIAL_OVERSUPPLY
+}
+
+enum PriorityLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RelevanceStatus {
+  RELEVANT
+  NEEDS_UPDATE
+  HIGH_PRIORITY
+  NOT_REQUIRED
+}
+
+model SkillAlias {
+  id             String   @id @default(uuid())
+  alias          String   @unique
+  normalizedName String
+  category       String?
+  createdAt      DateTime @default(now())
+
+  @@index([normalizedName])
+}
+
+model JobMarketSignal {
+  id             String         @id @default(uuid())
+  jobRole        String
+  normalizedRole String
+  skillName      String
+  normalizedSkill String
+  sector         String
+  state          String
+  district       String
+  proficiency    SkillProficiency @default(INTERMEDIATE)
+  demandScore    Float          @default(0) // 0 - 100
+  hiringVolume   Int            @default(0)
+  growthRate     Float          @default(0) // percentage e.g. +24.5%
+  isEmerging     Boolean        @default(false)
+  isObsolete     Boolean        @default(false)
+  source         String         @default("National Labour Market Monitor")
+  sourceType     DataSourceType @default(DEMO_DATA)
+  observedAt     DateTime       @default(now())
+
+  @@index([state, district])
+  @@index([sector])
+  @@index([normalizedRole])
+  @@index([normalizedSkill])
+}
+
+model Course {
+  id                String             @id @default(uuid())
+  collegeId         String?
+  college           College?           @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  name              String
+  code              String?
+  sector            String
+  department        String
+  state             String
+  district          String
+  durationMonths    Int                @default(6)
+  annualCapacity    Int                @default(60)
+  currentEnrollment Int                @default(0)
+  placedCount       Int                @default(0)
+  healthStatus      CourseHealthStatus @default(HEALTHY)
+  alignmentScore    Float              @default(75.0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  skills            CourseSkill[]
+
+  @@index([state, district])
+  @@index([sector])
+  @@index([collegeId])
+}
+
+model CourseSkill {
+  id          String           @id @default(uuid())
+  courseId    String
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  skillName   String
+  proficiency SkillProficiency @default(INTERMEDIATE)
+  weight      Float            @default(1.0)
+  isCore      Boolean          @default(true)
+
+  @@index([courseId])
+}
+
+model Curriculum {
+  id             String          @id @default(uuid())
+  collegeId      String
+  college        College         @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  name           String
+  department     String
+  academicYear   String          @default("2025-2026")
+  semester       Int             @default(1)
+  targetJobRole  String?
+  alignmentScore Float           @default(0)
+  status         AlignmentStatus @default(MODERATE_ALIGNMENT)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  skills         CurriculumSkill[]
+
+  @@index([collegeId])
+}
+
+model CurriculumSkill {
+  id            String     @id @default(uuid())
+  curriculumId  String
+  curriculum    Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  skillName     String
+  category      String?
+  isCore        Boolean    @default(true)
+  hoursAllotted Int        @default(40)
+
+  @@index([curriculumId])
+}
+
+model TrainerCapacity {
+  id               String   @id @default(uuid())
+  state            String
+  district         String
+  sector           String
+  skillName        String
+  currentTrainers  Int      @default(0)
+  requiredTrainers Int      @default(0)
+  gapCount         Int      @default(0)
+  status           String   @default("BALANCED") // DEFICIT | BALANCED | SURPLUS
+  updatedAt        DateTime @default(now())
+
+  @@index([state, district])
+  @@index([sector])
+}
+
+model EquipmentCapacity {
+  id                String   @id @default(uuid())
+  state             String
+  district          String
+  sector            String
+  equipmentType     String
+  courseOrSkillName String
+  currentUnits      Int      @default(0)
+  requiredUnits     Int      @default(0)
+  gapUnits          Int      @default(0)
+  estimatedCostInr  Float    @default(0)
+  updatedAt         DateTime @default(now())
+
+  @@index([state, district])
+  @@index([sector])
+}
+
+model DistrictTrainingPlan {
+  id                   String        @id @default(uuid())
+  state                String
+  district             String
+  sector               String
+  priority             PriorityLevel @default(HIGH)
+  targetRole           String
+  recommendedAction    String
+  estimatedBudgetInr   Float         @default(0)
+  targetBeneficiaries  Int           @default(0)
+  rationale            String
+  trainerGapAddressed  Int           @default(0)
+  equipmentGapAddressed Int          @default(0)
+  status               String        @default("PROPOSED") // PROPOSED | APPROVED | IN_PROGRESS
+  createdAt            DateTime      @default(now())
+
+  @@index([state, district])
+  @@index([priority])
+}
+
+model EmployerValidation {
+  id              String          @id @default(uuid())
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobRole         String
+  skillName       String
+  relevanceStatus RelevanceStatus @default(HIGH_PRIORITY)
+  feedback        String?
+  createdAt       DateTime        @default(now())
+
+  @@index([companyId])
+  @@index([jobRole])
+}
+

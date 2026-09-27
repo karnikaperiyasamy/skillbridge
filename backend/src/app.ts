@@ -12,6 +12,9 @@ import companyRoutes from "./modules/company/company.routes";
 import collegeRoutes from "./modules/college/college.routes";
 import adminRoutes from "./modules/admin/admin.routes";
 import aiRoutes from "./modules/ai/ai.routes";
+import labourMarketRoutes from "./modules/labourMarket/labourMarket.routes";
+import curriculumRoutes from "./modules/curriculum/curriculum.routes";
+import employerValidationRoutes from "./modules/employerValidation/employerValidation.routes";
 
 const app = express();
 
@@ -35,7 +38,7 @@ app.use(cookieParser());
 const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300 });
 app.use("/api", apiLimiter);
 
-app.get("/api/health", (_req, res) => res.json({ status: "ok", service: "SkillBridge AI API" }));
+app.get("/api/health", (_req, res) => res.json({ status: "ok", service: "SkillBridge AI API", sihTrack: "SIH26134" }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
@@ -43,6 +46,9 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/colleges", collegeRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/labour-market", labourMarketRoutes);
+app.use("/api/curriculum", curriculumRoutes);
+app.use("/api/employer-validation", employerValidationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

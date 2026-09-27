@@ -18,6 +18,12 @@ import {
   Menu,
   X,
   LogOut,
+  Globe,
+  MapPin,
+  BookOpen,
+  Activity,
+  FileCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { api } from "../../lib/api";
@@ -35,6 +41,7 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
     { to: "/student", label: "Dashboard", icon: Home, end: true },
     { to: "/student/profile", label: "Profile & Skills", icon: User },
     { to: "/student/opportunities", label: "Opportunities", icon: Compass },
+    { to: "/labour-market", label: "Market Intelligence", icon: Globe },
     { to: "/student/applications", label: "Applications", icon: FileText },
     { to: "/student/ai-hub", label: "AI Career Hub", icon: Sparkles },
     { to: "/student/mentor", label: "Mentor Chat", icon: MessageSquare },
@@ -43,15 +50,25 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
   COMPANY: [
     { to: "/company", label: "Dashboard", icon: Home, end: true },
     { to: "/company/jobs/new", label: "Post Job/Internship", icon: PenLine },
+    { to: "/company/skill-validation", label: "Validate Skills", icon: CheckCircle2 },
     { to: "/company/industry-expectations", label: "Industry Expectations", icon: BarChart3 },
+    { to: "/labour-market", label: "Labour Market Monitor", icon: Globe },
   ],
   COLLEGE: [
     { to: "/college", label: "Dashboard", icon: Home, end: true },
+    { to: "/curriculum/alignment", label: "Curriculum Alignment", icon: BookOpen },
+    { to: "/curriculum/course-health", label: "Course Health & Oversupply", icon: Activity },
+    { to: "/district-intelligence", label: "District Capacity Gaps", icon: MapPin },
     { to: "/college/analytics", label: "Analytics", icon: TrendingUp },
     { to: "/college/collaboration", label: "Industry Collaboration", icon: Handshake },
   ],
   ADMIN: [
     { to: "/admin", label: "Dashboard", icon: Home, end: true },
+    { to: "/labour-market", label: "Labour Market Intelligence", icon: Globe },
+    { to: "/district-intelligence", label: "District Capacity & Infra", icon: MapPin },
+    { to: "/district-training-plans", label: "District Training Plans", icon: FileCheck },
+    { to: "/curriculum/alignment", label: "Curriculum Alignment", icon: BookOpen },
+    { to: "/curriculum/course-health", label: "Course Health Matrix", icon: Activity },
     { to: "/admin/users", label: "User Management", icon: Users },
     { to: "/admin/verification", label: "Verification", icon: ShieldCheck },
   ],

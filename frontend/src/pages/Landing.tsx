@@ -1,18 +1,18 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Brain, Target, LineChart, Handshake, ArrowRight, GraduationCap, Building2, School } from "lucide-react";
+import { Brain, Target, LineChart, Handshake, ArrowRight, GraduationCap, Building2, School, Globe, BookOpen, Layers } from "lucide-react";
 
 const FEATURES = [
-  { icon: Brain, title: "AI Resume Analysis", desc: "Instant ATS scoring and rewrite suggestions, powered by AI." },
-  { icon: Target, title: "Smart Matching", desc: "A ranking engine that matches jobs to your real skill profile." },
-  { icon: LineChart, title: "Placement Analytics", desc: "Colleges track readiness, skill gaps, and outcomes live." },
-  { icon: Handshake, title: "Industry Collaboration", desc: "Companies publish expectations that shape curricula." },
+  { icon: Globe, title: "Labour Market Intelligence", desc: "Real-time district demand scores, growth trends, and canonical skill normalization." },
+  { icon: BookOpen, title: "Curriculum Alignment", desc: "Automated syllabus evaluation, missing gap detection, and modernization roadmaps." },
+  { icon: Layers, title: "District Capacity Planning", desc: "Track certified faculty deficits and equipment gaps to drive regional investments." },
+  { icon: Target, title: "Smart Skill Matching & AI", desc: "ATS resume scoring, AI mock interviews, and verifiable hiring pipelines." },
 ];
 
 const ROLES = [
-  { role: "Student", icon: GraduationCap, desc: "Build your profile, get AI recommendations, and apply to opportunities.", to: "/signup" },
-  { role: "Company", icon: Building2, desc: "Post jobs and internships, and rank applicants with AI matching.", to: "/signup" },
-  { role: "College", icon: School, desc: "Monitor placements, skill gaps, and industry partnerships.", to: "/signup" },
+  { role: "Student", icon: GraduationCap, desc: "Explore regional demand, analyze resume ATS scores, and get AI career roadmaps.", to: "/signup" },
+  { role: "College", icon: School, desc: "Audit syllabus alignment, monitor course health, and collaborate with industry.", to: "/signup" },
+  { role: "Company", icon: Building2, desc: "Post jobs, validate in-demand competencies, and source verified talent.", to: "/signup" },
 ];
 
 const fadeUp = {

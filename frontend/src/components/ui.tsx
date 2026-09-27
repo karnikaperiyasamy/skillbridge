@@ -128,10 +128,14 @@ export function FormField({
 
 export function Badge({
   children,
-  tone = "slate",
+  tone,
+  variant,
+  className = "",
 }: {
   children: ReactNode;
   tone?: "slate" | "green" | "amber" | "red" | "brand" | "blue";
+  variant?: "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+  className?: string;
 }) {
   const tones: Record<string, string> = {
     slate: "bg-surface-3 text-ink-muted border border-stroke",
@@ -141,10 +145,57 @@ export function Badge({
     brand: "bg-accent-50 text-accent-700 border border-accent-200",
     blue: "bg-sky-500/10 text-sky-500 border border-sky-500/25",
   };
+
+  const variantToTone: Record<string, string> = {
+    primary: "brand",
+    secondary: "slate",
+    success: "green",
+    warning: "amber",
+    danger: "red",
+    info: "blue",
+  };
+
+  const activeTone = (variant ? variantToTone[variant] : tone) || "slate";
+
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${tones[tone]}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${tones[activeTone] || tones.slate} ${className}`}>
       {children}
     </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Modal Dialog                                                       */
+/* ------------------------------------------------------------------ */
+
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm">
+      <div className="relative w-full max-w-lg rounded-2xl bg-surface-1 border border-stroke p-6 shadow-2xl animate-[scalein_0.15s_ease-out]">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-stroke">
+          <h3 className="text-lg font-bold text-ink">{title}</h3>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-ink-muted hover:bg-surface-2 hover:text-ink"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="max-h-[75vh] overflow-y-auto pr-1">{children}</div>
+      </div>
+    </div>
   );
 }
 
@@ -152,8 +203,9 @@ export function Badge({
 /*  Loading / empty / error states                                     */
 /* ------------------------------------------------------------------ */
 
-export function Spinner({ size = 20 }: { size?: number }) {
-  return <Loader2 style={{ width: size, height: size }} className="animate-spin text-accent-500" />;
+export function Spinner({ size = 20 }: { size?: number | "sm" | "md" | "lg" }) {
+  const pixelSize = typeof size === "number" ? size : size === "sm" ? 14 : size === "lg" ? 28 : 20;
+  return <Loader2 style={{ width: pixelSize, height: pixelSize }} className="animate-spin text-accent-500" />;
 }
 
 export function FullPageSpinner({ label = "Loading…" }: { label?: string }) {

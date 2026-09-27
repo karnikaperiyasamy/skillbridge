@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, ReactNode, useEffect } from "react";
 
 type ToastKind = "success" | "error" | "info";
 interface Toast {
@@ -13,6 +13,15 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+type ToastListener = (message: string, kind: ToastKind) => void;
+const listeners: ToastListener[] = [];
+
+export const toast = {
+  success: (message: string) => listeners.forEach((l) => l(message, "success")),
+  error: (message: string) => listeners.forEach((l) => l(message, "error")),
+  info: (message: string) => listeners.forEach((l) => l(message, "info")),
+};
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -23,6 +32,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       setToasts((t) => t.filter((x) => x.id !== id));
     }, 4000);
   }, []);
+
+  useEffect(() => {
+    const listener: ToastListener = (msg, kind) => push(msg, kind);
+    listeners.push(listener);
+    return () => {
+      const idx = listeners.indexOf(listener);
+      if (idx !== -1) listeners.splice(idx, 1);
+    };
+  }, [push]);
 
   return (
     <ToastContext.Provider value={{ push }}>

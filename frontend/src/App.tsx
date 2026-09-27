@@ -19,6 +19,7 @@ import CompanyDashboard from "./pages/company/Dashboard";
 import CompanyJobPost from "./pages/company/JobPost";
 import CompanyApplicants from "./pages/company/Applicants";
 import CompanyExpectations from "./pages/company/IndustryExpectations";
+import CompanySkillValidation from "./pages/company/SkillValidation";
 
 import CollegeDashboard from "./pages/college/Dashboard";
 import CollegeAnalytics from "./pages/college/Analytics";
@@ -27,6 +28,13 @@ import CollegeCollaboration from "./pages/college/IndustryCollaboration";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminVerification from "./pages/admin/Verification";
+
+// SIH26134 Platform Pages
+import LabourMarketIntelligence from "./pages/labourMarket/LabourMarketIntelligence";
+import DistrictIntelligence from "./pages/labourMarket/DistrictIntelligence";
+import CurriculumAlignment from "./pages/curriculum/CurriculumAlignment";
+import CourseHealth from "./pages/curriculum/CourseHealth";
+import DistrictTrainingPlan from "./pages/planning/DistrictTrainingPlan";
 
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
@@ -40,6 +48,15 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* Public / Common Intelligence Routes (Accessible across authenticated roles) */}
+        <Route element={<ProtectedRoute allow={["STUDENT", "COMPANY", "COLLEGE", "ADMIN"]} />}>
+          <Route path="/labour-market" element={<LabourMarketIntelligence />} />
+          <Route path="/district-intelligence" element={<DistrictIntelligence />} />
+          <Route path="/curriculum/alignment" element={<CurriculumAlignment />} />
+          <Route path="/curriculum/course-health" element={<CourseHealth />} />
+          <Route path="/district-training-plans" element={<DistrictTrainingPlan />} />
+        </Route>
 
         <Route element={<ProtectedRoute allow={["STUDENT"]} />}>
           <Route path="/student" element={<StudentDashboard />} />
@@ -56,6 +73,7 @@ export default function App() {
           <Route path="/company/jobs/new" element={<CompanyJobPost />} />
           <Route path="/company/jobs/:id/applicants" element={<CompanyApplicants />} />
           <Route path="/company/industry-expectations" element={<CompanyExpectations />} />
+          <Route path="/company/skill-validation" element={<CompanySkillValidation />} />
         </Route>
 
         <Route element={<ProtectedRoute allow={["COLLEGE"]} />}>
