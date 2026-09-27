@@ -35,6 +35,7 @@ import DistrictIntelligence from "./pages/labourMarket/DistrictIntelligence";
 import CurriculumAlignment from "./pages/curriculum/CurriculumAlignment";
 import CourseHealth from "./pages/curriculum/CourseHealth";
 import DistrictTrainingPlan from "./pages/planning/DistrictTrainingPlan";
+import PlacementOutcomes from "./pages/outcomes/PlacementOutcomes";
 
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/curriculum/alignment" element={<CurriculumAlignment />} />
           <Route path="/curriculum/course-health" element={<CourseHealth />} />
           <Route path="/district-training-plans" element={<DistrictTrainingPlan />} />
+          <Route path="/outcomes/placement-outcomes" element={<PlacementOutcomes />} />
         </Route>
 
         <Route element={<ProtectedRoute allow={["STUDENT"]} />}>

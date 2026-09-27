@@ -24,6 +24,9 @@ import {
   Activity,
   FileCheck,
   CheckCircle2,
+  GraduationCap,
+  Layers,
+  Zap,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { api } from "../../lib/api";
@@ -39,46 +42,50 @@ interface NavItem {
 const NAV_BY_ROLE: Record<string, NavItem[]> = {
   STUDENT: [
     { to: "/student", label: "Dashboard", icon: Home, end: true },
-    { to: "/student/profile", label: "Profile & Skills", icon: User },
+    { to: "/student/profile", label: "Profile & Resume", icon: User },
+    { to: "/student/ai-hub", label: "Skill Gap & Roadmap", icon: Sparkles },
     { to: "/student/opportunities", label: "Opportunities", icon: Compass },
     { to: "/labour-market", label: "Market Intelligence", icon: Globe },
     { to: "/student/applications", label: "Applications", icon: FileText },
-    { to: "/student/ai-hub", label: "AI Career Hub", icon: Sparkles },
-    { to: "/student/mentor", label: "Mentor Chat", icon: MessageSquare },
     { to: "/student/mock-interview", label: "Mock Interview", icon: Mic },
+    { to: "/student/mentor", label: "AI Career Mentor", icon: MessageSquare },
   ],
   COMPANY: [
     { to: "/company", label: "Dashboard", icon: Home, end: true },
-    { to: "/company/jobs/new", label: "Post Job/Internship", icon: PenLine },
-    { to: "/company/skill-validation", label: "Validate Skills", icon: CheckCircle2 },
+    { to: "/company/jobs/new", label: "Post Job / Internship", icon: PenLine },
+    { to: "/company/skill-validation", label: "Curriculum Validation", icon: CheckCircle2 },
     { to: "/company/industry-expectations", label: "Industry Expectations", icon: BarChart3 },
-    { to: "/labour-market", label: "Labour Market Monitor", icon: Globe },
+    { to: "/labour-market", label: "Labour Market Demand", icon: Globe },
   ],
   COLLEGE: [
     { to: "/college", label: "Dashboard", icon: Home, end: true },
     { to: "/curriculum/alignment", label: "Curriculum Alignment", icon: BookOpen },
     { to: "/curriculum/course-health", label: "Course Health & Oversupply", icon: Activity },
-    { to: "/district-intelligence", label: "District Capacity Gaps", icon: MapPin },
-    { to: "/college/analytics", label: "Analytics", icon: TrendingUp },
-    { to: "/college/collaboration", label: "Industry Collaboration", icon: Handshake },
+    { to: "/district-intelligence", label: "Training Capacity & Infra", icon: MapPin },
+    { to: "/district-training-plans", label: "District Training Plans", icon: FileCheck },
+    { to: "/outcomes/placement-outcomes", label: "Placement Outcomes", icon: GraduationCap },
+    { to: "/college/analytics", label: "Institutional Analytics", icon: TrendingUp },
+    { to: "/college/collaboration", label: "Industry Partnerships", icon: Handshake },
   ],
   ADMIN: [
-    { to: "/admin", label: "Dashboard", icon: Home, end: true },
+    { to: "/admin", label: "Overview", icon: Home, end: true },
     { to: "/labour-market", label: "Labour Market Intelligence", icon: Globe },
-    { to: "/district-intelligence", label: "District Capacity & Infra", icon: MapPin },
-    { to: "/district-training-plans", label: "District Training Plans", icon: FileCheck },
+    { to: "/district-intelligence", label: "District Intelligence & Infra", icon: MapPin },
     { to: "/curriculum/alignment", label: "Curriculum Alignment", icon: BookOpen },
     { to: "/curriculum/course-health", label: "Course Health Matrix", icon: Activity },
+    { to: "/district-training-plans", label: "District Training Plans", icon: FileCheck },
+    { to: "/outcomes/placement-outcomes", label: "Placement Outcomes", icon: GraduationCap },
+    { to: "/company/skill-validation", label: "Employer Validation", icon: CheckCircle2 },
     { to: "/admin/users", label: "User Management", icon: Users },
-    { to: "/admin/verification", label: "Verification", icon: ShieldCheck },
+    { to: "/admin/verification", label: "Institutional Verification", icon: ShieldCheck },
   ],
 };
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT: "Student",
-  COMPANY: "Company",
-  COLLEGE: "College",
-  ADMIN: "Admin",
+  COMPANY: "Enterprise Employer",
+  COLLEGE: "Academic Institution",
+  ADMIN: "Government / Admin",
 };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
