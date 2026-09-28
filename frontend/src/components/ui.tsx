@@ -182,18 +182,23 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg rounded-2xl bg-surface-1 border border-stroke p-6 shadow-2xl animate-[scalein_0.15s_ease-out]">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-stroke">
-          <h3 className="text-lg font-bold text-ink">{title}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md transition-all">
+      <div className="relative w-full max-w-xl rounded-2xl bg-white dark:bg-slate-900 border border-brand-500/30 p-6 shadow-[0_25px_60px_-12px_rgba(0,0,0,0.4)] ring-1 ring-black/10 dark:ring-white/10 animate-[scalein_0.15s_ease-out]">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-stroke dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-gradient text-white text-xs font-bold shadow-glow">
+              ✨
+            </span>
+            <h3 className="text-lg font-bold text-ink dark:text-white">{title}</h3>
+          </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-ink-muted hover:bg-surface-2 hover:text-ink"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-muted hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-ink dark:hover:text-white transition-colors"
           >
             ✕
           </button>
         </div>
-        <div className="max-h-[75vh] overflow-y-auto pr-1">{children}</div>
+        <div className="max-h-[78vh] overflow-y-auto pr-1">{children}</div>
       </div>
     </div>
   );

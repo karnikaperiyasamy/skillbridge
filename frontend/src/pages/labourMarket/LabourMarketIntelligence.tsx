@@ -72,7 +72,7 @@ export default function LabourMarketIntelligence() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="info">SIH26134 Platform</Badge>
+              <Badge variant="info">National Labour Intelligence</Badge>
               <span className="flex items-center gap-1 text-xs text-brand-600 font-semibold bg-brand-50 dark:bg-brand-950/40 px-2 py-0.5 rounded-full">
                 <Database size={12} /> Live Labour Monitor
               </span>

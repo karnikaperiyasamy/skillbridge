@@ -18,6 +18,7 @@
 
 import { prisma } from "../../config/prisma";
 import { groqJSON } from "../../config/groq";
+import { isBranchEligible } from "../../utils/branchNormalizer";
 
 interface MatchResult {
   score: number; // 0-100
@@ -85,9 +86,7 @@ export async function computeMatchScore(studentId: string, opportunityId: string
     eligibilityFit = student.cgpa >= opportunity.minCgpa ? 100 : Math.max(0, (student.cgpa / opportunity.minCgpa) * 100);
   }
   if (opportunity.eligibleBranches.length > 0 && student.branch) {
-    const branchOk = opportunity.eligibleBranches
-      .map((b) => b.toLowerCase())
-      .includes(student.branch.toLowerCase());
+    const branchOk = isBranchEligible(student.branch, opportunity.eligibleBranches);
     eligibilityFit = branchOk ? eligibilityFit : eligibilityFit * 0.3;
   }
 

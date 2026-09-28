@@ -99,7 +99,7 @@ export default function CurriculumAlignment() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Core Engine</Badge>
+              <Badge variant="primary">Academic Alignment Engine</Badge>
               <span className="flex items-center gap-1 text-xs text-brand-600 font-semibold bg-brand-50 dark:bg-brand-950/40 px-2 py-0.5 rounded-full">
                 <BookOpen size={12} /> Institutional Alignment
               </span>

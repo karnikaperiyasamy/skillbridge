@@ -102,7 +102,7 @@ export default function CourseHealth() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Intelligence</Badge>
+              <Badge variant="primary">Program Intelligence</Badge>
               <span className="flex items-center gap-1 text-xs text-ink-muted font-medium">
                 <Activity size={13} className="text-brand-500" /> Continuous Monitoring
               </span>

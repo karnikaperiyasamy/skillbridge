@@ -52,7 +52,7 @@ export default function AdminDashboard() {
     <DashboardLayout>
       <PageHeader
         title="National Labour Market & Institutional Intelligence Console"
-        subtitle="SIH26134 Central Command for Government, Universities, and District Skill Committees."
+        subtitle="Central Command for Government, Universities, and District Skill Committees."
         actions={
           <div className="flex items-center gap-2">
             <Link to="/labour-market">
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
         }
       />
 
-      {/* Primary SIH KPI Grid */}
+      {/* Primary KPI Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tracked Job Openings"
@@ -97,11 +97,11 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* SIH Intelligence Command Navigation Matrix */}
+      {/* Intelligence Command Navigation Matrix */}
       <Card className="mt-6 p-6 border-indigo-200 dark:border-indigo-900 bg-surface-1">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold text-ink">SIH26134 Core Intelligence Modules</h2>
+            <h2 className="text-base font-bold text-ink">Core Intelligence & Planning Modules</h2>
             <p className="text-xs text-ink-muted">Quick access to policy, curriculum, and district planning engines</p>
           </div>
           <Badge variant="primary">Government & Institutional Console</Badge>

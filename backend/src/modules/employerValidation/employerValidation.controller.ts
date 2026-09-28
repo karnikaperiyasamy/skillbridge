@@ -4,7 +4,10 @@ import { prisma } from "../../config/prisma";
 
 export async function submitValidation(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = (req as any).user?.id;
+    const userId = (req as any).user?.userId || (req as any).user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthenticated" });
+    }
     const company = await prisma.company.findUnique({ where: { userId } });
     if (!company) {
       return res.status(403).json({ error: "Only companies can submit skill validations." });

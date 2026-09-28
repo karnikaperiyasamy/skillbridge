@@ -52,7 +52,7 @@ export default function PlacementOutcomes() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Outcomes</Badge>
+              <Badge variant="primary">Institutional Outcomes</Badge>
               <span className="flex items-center gap-1 text-xs text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
                 <GraduationCap size={12} /> Training Effectiveness
               </span>

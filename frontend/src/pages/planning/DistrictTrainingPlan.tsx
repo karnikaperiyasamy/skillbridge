@@ -83,7 +83,7 @@ export default function DistrictTrainingPlan() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Planning Console</Badge>
+              <Badge variant="primary">District Planning Console</Badge>
               <span className="flex items-center gap-1 text-xs text-brand-600 font-semibold bg-brand-50 dark:bg-brand-950/40 px-2 py-0.5 rounded-full">
                 <FileCheck size={12} /> District Skill Roadmaps
               </span>

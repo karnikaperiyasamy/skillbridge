@@ -91,7 +91,7 @@ export default function StudentDashboard() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Regional Intelligence</Badge>
+              <Badge variant="primary">Regional Skill Intelligence</Badge>
               <span className="text-xs text-brand-600 font-semibold flex items-center gap-1">
                 <Zap size={12} /> High-Velocity Skills in Your Region
               </span>

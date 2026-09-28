@@ -53,7 +53,7 @@ export default function DistrictIntelligence() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Badge variant="primary">SIH26134 Platform</Badge>
+              <Badge variant="primary">Regional Intelligence Platform</Badge>
               <span className="flex items-center gap-1 text-xs text-ink-muted font-medium">
                 <MapPin size={13} className="text-brand-500" /> District-Level Granularity
               </span>
